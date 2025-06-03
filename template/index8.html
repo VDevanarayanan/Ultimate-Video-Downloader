@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Twitter Video Downloader</title>
+    <style>
+      body {
+        background-color: #111827;
+        color: white;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        background: #1f2937;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 0 10px #00000044;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 1rem;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #1da1f2;
+        color: white;
+      }
+
+      button:hover {
+        background-color: #1991db;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #4b5563;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: #1da1f2;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .status {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #d1d5db;
+      }
+
+      .history {
+        margin-top: 1rem;
+      }
+
+      .history h2 {
+        font-size: 1rem;
+        color: #60a5fa;
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+
+      .history ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .history li {
+        background: #374151;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="text-align: center; color: #60a5fa">Twitter Downloader</h1>
+      <input
+        type="text"
+        id="videoUrl"
+        placeholder="Enter Twitter/X video URL"
+      />
+      <button id="downloadBtn">Download Video</button>
+      <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+      </div>
+      <p class="status" id="statusText"></p>
+      <div class="history" id="historySection" style="display: none">
+        <h2>Download History</h2>
+        <ul id="historyList"></ul>
+      </div>
+    </div>
+
+    <script>
+      const input = document.getElementById("videoUrl");
+      const statusText = document.getElementById("statusText");
+      const progressBar = document.getElementById("progressBar");
+      const historyList = document.getElementById("historyList");
+      const historySection = document.getElementById("historySection");
+      const history = [];
+
+      async function downloadVideo() {
+        const url = input.value.trim();
+        if (!url) {
+          statusText.textContent = "Please enter a Twitter video URL.";
+          return;
+        }
+
+        statusText.textContent = "Processing...";
+        statusText.style.color = "#d1d5db";
+        progressBar.style.width = "20%";
+
+        try {
+          const res = await fetch("/download_twitter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+
+          progressBar.style.width = "60%";
+
+          if (!res.ok) {
+            const error = await res.json();
+            statusText.textContent = error.error || "Failed to download.";
+            statusText.style.color = "red";
+            progressBar.style.width = "0%";
+            return;
+          }
+
+          const blob = await res.blob();
+          const disposition = res.headers.get("Content-Disposition") || "";
+          let filename = "twitter_video";
+          if (disposition.includes("filename=")) {
+            filename = disposition
+              .split("filename=")[1]
+              .replace(/\"/g, "")
+              .trim();
+          }
+
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          progressBar.style.width = "100%";
+          statusText.textContent = "Downloaded.";
+          statusText.style.color = "#10b981";
+
+          history.push({ url, filename });
+          updateHistory();
+        } catch (e) {
+          statusText.textContent = "Error: " + e.message;
+          statusText.style.color = "red";
+          progressBar.style.width = "0%";
+        }
+      }
+
+      function updateHistory() {
+        historySection.style.display = "block";
+        historyList.innerHTML = "";
+        history.forEach(({ filename }) => {
+          const li = document.createElement("li");
+          li.textContent = `${filename}`;
+          historyList.appendChild(li);
+        });
+      }
+
+      document
+        .getElementById("downloadBtn")
+        .addEventListener("click", downloadVideo);
+    </script>
+  </body>
+</html>

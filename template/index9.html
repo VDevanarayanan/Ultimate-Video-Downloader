@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>YouTube Downloader</title>
+    <style>
+      body {
+        background-color: #111827;
+        color: white;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        background: #1f2937;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 0 10px #00000044;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 1rem;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1rem;
+      }
+
+      button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .btn-video {
+        background-color: #7c3aed;
+        color: white;
+      }
+
+      .btn-audio {
+        background-color: #10b981;
+        color: white;
+      }
+
+      .btn-video:hover {
+        background-color: #6d28d9;
+      }
+
+      .btn-audio:hover {
+        background-color: #059669;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #4b5563;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: #3b82f6;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .status {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #d1d5db;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="text-align: center; color: #a78bfa">YouTube Downloader</h1>
+      <input type="text" id="urlInput" placeholder="Enter YouTube URL" />
+      <div class="btn-group">
+        <button class="btn-video" onclick="download('video')">
+          Download Video
+        </button>
+        <button class="btn-audio" onclick="download('audio')">
+          Download Audio
+        </button>
+      </div>
+      <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+      </div>
+      <p class="status" id="statusText"></p>
+    </div>
+
+    <script>
+      const urlInput = document.getElementById("urlInput");
+      const statusText = document.getElementById("statusText");
+      const progressBar = document.getElementById("progressBar");
+
+      async function download(format) {
+        const url = urlInput.value.trim();
+        if (!url) return;
+
+        statusText.textContent = "Processing...";
+        progressBar.style.width = "20%";
+
+        try {
+          const res = await fetch("/download/youtube", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, format }),
+          });
+
+          progressBar.style.width = "60%";
+
+          if (!res.ok) {
+            const err = await res.json();
+            statusText.textContent = "Error: " + err.error;
+            progressBar.style.width = "0%";
+            return;
+          }
+
+          const blob = await res.blob();
+          const filename = res.headers
+            .get("Content-Disposition")
+            .split("filename=")[1]
+            .replace(/\"/g, "");
+
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          progressBar.style.width = "100%";
+          statusText.textContent = "Download complete!";
+        } catch (e) {
+          statusText.textContent = "Error: " + e.message;
+          progressBar.style.width = "0%";
+        }
+      }
+    </script>
+  </body>
+</html>
