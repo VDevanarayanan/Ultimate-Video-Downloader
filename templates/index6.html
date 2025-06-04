@@ -15,7 +15,6 @@
         margin: 0;
         padding: 20px;
       }
-
       .container {
         background: #1f2937;
         padding: 2rem;
@@ -24,7 +23,6 @@
         width: 100%;
         box-shadow: 0 0 10px #00000044;
       }
-
       input[type="text"] {
         width: 100%;
         padding: 10px;
@@ -32,7 +30,6 @@
         border: none;
         margin-bottom: 1rem;
       }
-
       button {
         width: 100%;
         padding: 10px;
@@ -40,14 +37,12 @@
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
-        background-color: #ff0050;
+        background-color: #69c9d0;
         color: white;
       }
-
       button:hover {
-        background-color: #e60045;
+        background-color: #41b3bc;
       }
-
       .progress-bar {
         width: 100%;
         height: 8px;
@@ -56,37 +51,31 @@
         overflow: hidden;
         margin-bottom: 1rem;
       }
-
       .progress {
         height: 100%;
-        background-color: #ff0050;
+        background-color: #69c9d0;
         width: 0%;
         transition: width 0.3s ease;
       }
-
       .status {
         text-align: center;
         margin-bottom: 1rem;
         font-size: 0.9rem;
         color: #d1d5db;
       }
-
       .history {
         margin-top: 1rem;
       }
-
       .history h2 {
         font-size: 1rem;
-        color: #ff0050;
+        color: #69c9d0;
         margin-bottom: 0.5rem;
         text-align: center;
       }
-
       .history ul {
         list-style: none;
         padding-left: 0;
       }
-
       .history li {
         background: #374151;
         padding: 8px;
@@ -98,7 +87,7 @@
   </head>
   <body>
     <div class="container">
-      <h1 style="text-align: center; color: #ff0050">TikTok Downloader</h1>
+      <h1 style="text-align: center; color: #69c9d0">TikTok Downloader</h1>
       <input type="text" id="videoUrl" placeholder="Enter TikTok video URL" />
       <button id="downloadBtn">Download Video</button>
       <div class="progress-bar">
@@ -123,6 +112,7 @@
         const url = input.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a TikTok video URL.";
+          statusText.style.color = "red";
           return;
         }
 
@@ -149,7 +139,7 @@
 
           const blob = await res.blob();
           const disposition = res.headers.get("Content-Disposition") || "";
-          let filename = "tiktok_video";
+          let filename = "tiktok_video.mp4";
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
@@ -182,7 +172,7 @@
         historyList.innerHTML = "";
         history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }

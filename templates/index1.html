@@ -127,6 +127,7 @@
         const url = input.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a Dailymotion video URL.";
+          statusText.style.color = "#d1d5db";
           return;
         }
 
@@ -144,8 +145,16 @@
           progressBar.style.width = "60%";
 
           if (!res.ok) {
-            const error = await res.json();
-            statusText.textContent = error.error || "Failed to download.";
+            let errorText = "Failed to download.";
+            try {
+              const errorJson = await res.json();
+              errorText = errorJson.error || errorText;
+            } catch (e) {
+              const errorHtml = await res.text();
+              console.error("Unexpected response:", errorHtml);
+            }
+            statusText.textContent = errorText;
+            statusText.style.color = "red";
             progressBar.style.width = "0%";
             return;
           }
@@ -185,7 +194,7 @@
         historyList.innerHTML = "";
         history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }

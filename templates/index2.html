@@ -93,6 +93,7 @@
         border-radius: 6px;
         margin-bottom: 5px;
         font-size: 0.9rem;
+        word-break: break-word;
       }
     </style>
   </head>
@@ -101,11 +102,7 @@
       <h1 style="text-align: center; color: #60a5fa">
         Facebook Video Downloader
       </h1>
-      <input
-        type="text"
-        id="facebookUrlInput"
-        placeholder="Enter Facebook video URL"
-      />
+      <input type="text" id="videoUrl" placeholder="Enter Facebook video URL" />
       <button id="downloadBtn">Download Video</button>
       <div class="progress-bar">
         <div class="progress" id="progressBar"></div>
@@ -118,17 +115,18 @@
     </div>
 
     <script>
-      const facebookUrlInput = document.getElementById("facebookUrlInput");
+      const input = document.getElementById("videoUrl");
       const statusText = document.getElementById("statusText");
       const progressBar = document.getElementById("progressBar");
       const historyList = document.getElementById("historyList");
       const historySection = document.getElementById("historySection");
       const history = [];
 
-      async function download() {
-        const url = facebookUrlInput.value.trim();
+      async function downloadVideo() {
+        const url = input.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a Facebook video URL.";
+          statusText.style.color = "red";
           return;
         }
 
@@ -137,7 +135,7 @@
         progressBar.style.width = "20%";
 
         try {
-          const res = await fetch("/download_facebook", {
+          const response = await fetch("/download_facebook", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
@@ -145,16 +143,23 @@
 
           progressBar.style.width = "60%";
 
-          if (!res.ok) {
-            const error = await res.json();
-            statusText.textContent = error.error || "Failed to download.";
+          if (!response.ok) {
+            let errorMsg = "Failed to download.";
+            try {
+              const errorData = await response.json();
+              errorMsg = errorData.error || errorMsg;
+            } catch {
+              errorMsg = "Unknown error occurred.";
+            }
+            statusText.textContent = errorMsg;
+            statusText.style.color = "red";
             progressBar.style.width = "0%";
             return;
           }
 
-          const blob = await res.blob();
-          const disposition = res.headers.get("Content-Disposition") || "";
-          let filename = "download";
+          const blob = await response.blob();
+          const disposition = response.headers.get("Content-Disposition") || "";
+          let filename = "download.mp4";
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
@@ -175,8 +180,8 @@
 
           history.push({ url, filename });
           updateHistory();
-        } catch (e) {
-          statusText.textContent = "Error: " + e.message;
+        } catch (error) {
+          statusText.textContent = "Error: " + error.message;
           statusText.style.color = "red";
           progressBar.style.width = "0%";
         }
@@ -185,16 +190,16 @@
       function updateHistory() {
         historySection.style.display = "block";
         historyList.innerHTML = "";
-        history.forEach(({ url, filename }) => {
+        history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }
 
       document
         .getElementById("downloadBtn")
-        .addEventListener("click", download);
+        .addEventListener("click", downloadVideo);
     </script>
   </body>
 </html>

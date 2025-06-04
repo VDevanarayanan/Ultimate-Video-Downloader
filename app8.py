@@ -1,42 +1,38 @@
-from flask import Flask, request, send_file, jsonify, render_template
+from flask import Flask, Blueprint, request, send_file, jsonify
 import yt_dlp
 import os
 import uuid
+import traceback
 
-app = Flask(__name__, static_url_path='',
-            static_folder='.', template_folder='.')
-
+app = Flask(__name__)
+twitter_bp = Blueprint('twitter', __name__)
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 
-@app.route('/')
-def home():
-    return render_template('index8.html')
-
-
-@app.route('/download_twitter', methods=['POST'])
+@twitter_bp.route('/download_twitter', methods=['POST'])
 def download_twitter():
-    data = request.json
-    url = data.get('url')
-
-    if not url:
-        return jsonify({"error": "Missing URL"}), 400
-
-    if "twitter.com" not in url and "x.com" not in url:
-        return jsonify({"error": "URL is not a valid Twitter/X link"}), 400
-
-    filename = f"{uuid.uuid4()}.%(ext)s"
-    output_path = os.path.join(DOWNLOAD_DIR, filename)
-
-    ydl_opts = {
-        'outtmpl': output_path,
-        'quiet': True,
-        'format': 'best',
-        'merge_output_format': 'mp4',
-    }
-
     try:
+        data = request.json
+        url = data.get('url')
+
+        if not url:
+            return jsonify({"error": "Missing URL"}), 400
+
+        if "twitter.com" not in url:
+            return jsonify({"error": "Invalid twitter URL"}), 400
+
+        filename = f"{uuid.uuid4()}.%(ext)s"
+        output_path = os.path.join(DOWNLOAD_DIR, filename)
+
+        ydl_opts = {
+            'outtmpl': output_path,
+            'quiet': True,
+            'format': 'bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4',
+            'noplaylist': True,
+        }
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             downloaded_file = ydl.prepare_filename(info)
@@ -46,8 +42,14 @@ def download_twitter():
         return send_file(downloaded_file, as_attachment=True)
 
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
+def register_twitter_routes(app):
+    app.register_blueprint(twitter_bp)
+
+
 if __name__ == '__main__':
-    app.run(port=5008)
+    register_twitter_routes(app)
+    app.run()

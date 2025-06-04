@@ -115,13 +115,16 @@
 
       async function download(format) {
         const url = urlInput.value.trim();
-        if (!url) return;
+        if (!url) {
+          statusText.textContent = "Please enter a YouTube URL.";
+          return;
+        }
 
         statusText.textContent = "Processing...";
         progressBar.style.width = "20%";
 
         try {
-          const res = await fetch("/download/youtube", {
+          const res = await fetch("/download_youtube", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url, format }),
@@ -129,18 +132,31 @@
 
           progressBar.style.width = "60%";
 
+          // Check for non-successful response
           if (!res.ok) {
-            const err = await res.json();
-            statusText.textContent = "Error: " + err.error;
+            let message = "Download failed.";
+            try {
+              const err = await res.json();
+              message = err.error || message;
+            } catch (jsonErr) {
+              message = "Server returned an unexpected error.";
+            }
+            statusText.textContent = "Error: " + message;
             progressBar.style.width = "0%";
             return;
           }
 
+          // File download
           const blob = await res.blob();
-          const filename = res.headers
-            .get("Content-Disposition")
-            .split("filename=")[1]
-            .replace(/\"/g, "");
+          const disposition = res.headers.get("Content-Disposition") || "";
+          let filename = "download";
+
+          if (disposition.includes("filename=")) {
+            filename = disposition
+              .split("filename=")[1]
+              .replace(/['"]/g, "")
+              .trim();
+          }
 
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
@@ -153,6 +169,7 @@
           statusText.textContent = "Download complete!";
         } catch (e) {
           statusText.textContent = "Error: " + e.message;
+          statusText.style.color = "red";
           progressBar.style.width = "0%";
         }
       }

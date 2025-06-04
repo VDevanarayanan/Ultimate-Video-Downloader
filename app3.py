@@ -1,54 +1,55 @@
-from flask import Flask, request, send_file, jsonify, render_template
+from flask import Flask, Blueprint, request, send_file, jsonify
 import yt_dlp
 import os
 import uuid
+import traceback
 
-app = Flask(__name__, static_url_path='',
-            static_folder='.', template_folder='.')
-
+app = Flask(__name__)
+instagram_bp = Blueprint('instagram', __name__)
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 
-@app.route('/')
-def home():
-    return render_template('index3.html')
-
-
-@app.route('/download_reel', methods=['POST'])
-def download_reel():
-    data = request.json
-    url = data.get('url')
-
-    if not url:
-        return jsonify({"error": "Missing URL"}), 400
-
-    if "instagram.com/reel/" not in url:
-        return jsonify({"error": "URL is not a valid Instagram reel link"}), 400
-
-    filename = f"{uuid.uuid4()}.%(ext)s"
-    output_path = os.path.join(DOWNLOAD_DIR, filename)
-
-    ydl_opts = {
-        'outtmpl': output_path,
-        'quiet': False,
-        'format': 'best',
-        'noplaylist': True,
-    }
-
+@instagram_bp.route('/download_instagram', methods=['POST'])
+def download_dailymotion():
     try:
+        data = request.json
+        url = data.get('url')
+
+        if not url:
+            return jsonify({"error": "Missing URL"}), 400
+
+        if "instagram.com" not in url:
+            return jsonify({"error": "Invalid Dailymotion URL"}), 400
+
+        filename = f"{uuid.uuid4()}.%(ext)s"
+        output_path = os.path.join(DOWNLOAD_DIR, filename)
+
+        ydl_opts = {
+            'outtmpl': output_path,
+            'quiet': True,
+            'format': 'bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4',
+            'noplaylist': True,
+        }
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             downloaded_file = ydl.prepare_filename(info)
-
-        if not os.path.exists(downloaded_file):
-            return jsonify({"error": "Downloaded file not found"}), 500
+            if not downloaded_file.endswith(".mp4"):
+                downloaded_file = downloaded_file.rsplit('.', 1)[0] + ".mp4"
 
         return send_file(downloaded_file, as_attachment=True)
 
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 
+def register_instagram_routes(app):
+    app.register_blueprint(instagram_bp)
+
+
 if __name__ == '__main__':
-    app.run(port=5001)
+    register_instagram_routes(app)
+    app.run()

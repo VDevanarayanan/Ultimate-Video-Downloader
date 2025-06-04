@@ -5,9 +5,9 @@
     <title>Twitter Video Downloader</title>
     <style>
       body {
-        background-color: #111827;
+        background-color: #15202b;
         color: white;
-        font-family: sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -15,95 +15,86 @@
         margin: 0;
         padding: 20px;
       }
-
       .container {
-        background: #1f2937;
+        background: #192734;
         padding: 2rem;
         border-radius: 1rem;
         max-width: 500px;
         width: 100%;
-        box-shadow: 0 0 10px #00000044;
+        box-shadow: 0 0 15px #00000099;
       }
-
       input[type="text"] {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         border-radius: 8px;
         border: none;
         margin-bottom: 1rem;
+        font-size: 1rem;
       }
-
       button {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         border: none;
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
         background-color: #1da1f2;
         color: white;
+        font-size: 1.1rem;
+        transition: background-color 0.3s ease;
       }
-
       button:hover {
-        background-color: #1991db;
+        background-color: #0d8ddb;
       }
-
       .progress-bar {
         width: 100%;
         height: 8px;
-        background-color: #4b5563;
+        background-color: #38444d;
         border-radius: 8px;
         overflow: hidden;
         margin-bottom: 1rem;
       }
-
       .progress {
         height: 100%;
         background-color: #1da1f2;
         width: 0%;
         transition: width 0.3s ease;
       }
-
       .status {
         text-align: center;
         margin-bottom: 1rem;
         font-size: 0.9rem;
-        color: #d1d5db;
+        color: #ccc;
       }
-
       .history {
         margin-top: 1rem;
       }
-
       .history h2 {
         font-size: 1rem;
-        color: #60a5fa;
+        color: #1da1f2;
         margin-bottom: 0.5rem;
         text-align: center;
       }
-
       .history ul {
         list-style: none;
         padding-left: 0;
       }
-
       .history li {
-        background: #374151;
+        background: #22303c;
         padding: 8px;
         border-radius: 6px;
         margin-bottom: 5px;
         font-size: 0.9rem;
+        word-break: break-word;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 style="text-align: center; color: #60a5fa">Twitter Downloader</h1>
-      <input
-        type="text"
-        id="videoUrl"
-        placeholder="Enter Twitter/X video URL"
-      />
+      <h1 style="text-align: center; color: #1da1f2">
+        Twitter Video Downloader
+      </h1>
+      <input type="text" id="videoUrl" placeholder="Enter Twitter video URL" />
       <button id="downloadBtn">Download Video</button>
       <div class="progress-bar">
         <div class="progress" id="progressBar"></div>
@@ -127,11 +118,12 @@
         const url = input.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a Twitter video URL.";
+          statusText.style.color = "red";
           return;
         }
 
         statusText.textContent = "Processing...";
-        statusText.style.color = "#d1d5db";
+        statusText.style.color = "#ccc";
         progressBar.style.width = "20%";
 
         try {
@@ -153,7 +145,7 @@
 
           const blob = await res.blob();
           const disposition = res.headers.get("Content-Disposition") || "";
-          let filename = "twitter_video";
+          let filename = "twitter_video.mp4";
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
@@ -170,7 +162,7 @@
 
           progressBar.style.width = "100%";
           statusText.textContent = "Downloaded.";
-          statusText.style.color = "#10b981";
+          statusText.style.color = "#1da1f2";
 
           history.push({ url, filename });
           updateHistory();
@@ -186,7 +178,7 @@
         historyList.innerHTML = "";
         history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }

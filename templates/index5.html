@@ -123,6 +123,7 @@
         const url = input.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a Reddit video URL.";
+          statusText.style.color = "red";
           return;
         }
 
@@ -149,7 +150,7 @@
 
           const blob = await res.blob();
           const disposition = res.headers.get("Content-Disposition") || "";
-          let filename = "reddit_video";
+          let filename = "reddit_video.mp4";
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
@@ -182,7 +183,7 @@
         historyList.innerHTML = "";
         history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }

@@ -1,11 +1,42 @@
 from flask import Flask, render_template
 
-app = Flask(__name__)
+from app1 import register_dailymotion_routes
+from app2 import register_facebook_routes
+from app3 import register_instagram_routes
+from app4 import register_pinterest_routes
+from app5 import register_reddit_routes
+from app6 import register_tiktok_routes
+from app7 import register_twitch_routes
+from app8 import register_twitter_routes
+from app9 import register_youtube_routes
+
+app = Flask(__name__, template_folder='templates')
+
+# Register blueprints from all downloader apps
+register_dailymotion_routes(app)
+register_facebook_routes(app)
+register_instagram_routes(app)
+register_pinterest_routes(app)
+register_reddit_routes(app)
+register_tiktok_routes(app)
+register_twitch_routes(app)
+register_twitter_routes(app)
+register_youtube_routes(app)
 
 
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.route('/dailymotion')
+def dailymotion():
+    return render_template('index1.html')
+
+
+@app.route('/facebook')
+def facebook():
+    return render_template('index2.html')
 
 
 @app.route('/instagram')

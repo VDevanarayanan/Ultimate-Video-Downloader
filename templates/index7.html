@@ -5,9 +5,9 @@
     <title>Twitch Video Downloader</title>
     <style>
       body {
-        background-color: #111827;
+        background-color: #1f1f23;
         color: white;
-        font-family: sans-serif;
+        font-family: Arial, sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -15,24 +15,22 @@
         margin: 0;
         padding: 20px;
       }
-
       .container {
-        background: #1f2937;
+        background: #2c2f33;
         padding: 2rem;
         border-radius: 1rem;
         max-width: 500px;
         width: 100%;
-        box-shadow: 0 0 10px #00000044;
+        box-shadow: 0 0 15px #00000099;
       }
-
       input[type="text"] {
         width: 100%;
         padding: 10px;
         border-radius: 8px;
         border: none;
         margin-bottom: 1rem;
+        font-size: 1rem;
       }
-
       button {
         width: 100%;
         padding: 10px;
@@ -40,71 +38,64 @@
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
-        background-color: #9146ff; /* Twitch purple */
+        background-color: #9147ff;
         color: white;
+        font-size: 1.1rem;
+        transition: background-color 0.3s ease;
       }
-
       button:hover {
         background-color: #772ce8;
       }
-
       .progress-bar {
         width: 100%;
         height: 8px;
-        background-color: #4b5563;
+        background-color: #555;
         border-radius: 8px;
         overflow: hidden;
         margin-bottom: 1rem;
       }
-
       .progress {
         height: 100%;
-        background-color: #b37fff;
+        background-color: #9147ff;
         width: 0%;
         transition: width 0.3s ease;
       }
-
       .status {
         text-align: center;
         margin-bottom: 1rem;
         font-size: 0.9rem;
-        color: #d1d5db;
+        color: #ccc;
       }
-
       .history {
         margin-top: 1rem;
       }
-
       .history h2 {
         font-size: 1rem;
-        color: #b37fff;
+        color: #9147ff;
         margin-bottom: 0.5rem;
         text-align: center;
       }
-
       .history ul {
         list-style: none;
         padding-left: 0;
       }
-
       .history li {
-        background: #374151;
+        background: #3a3b3f;
         padding: 8px;
         border-radius: 6px;
         margin-bottom: 5px;
         font-size: 0.9rem;
+        word-break: break-word;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 style="text-align: center; color: #b37fff">
-        Twitch Video Downloader
-      </h1>
+      <h1 style="text-align: center; color: #9147ff">Twitch Downloader</h1>
       <input
         type="text"
-        id="twitchUrlInput"
-        placeholder="Enter Twitch video URL"
+        id="videoUrl"
+        placeholder="Enter Twitch video or clip URL"
       />
       <button id="downloadBtn">Download Video</button>
       <div class="progress-bar">
@@ -118,22 +109,23 @@
     </div>
 
     <script>
-      const twitchUrlInput = document.getElementById("twitchUrlInput");
+      const input = document.getElementById("videoUrl");
       const statusText = document.getElementById("statusText");
       const progressBar = document.getElementById("progressBar");
       const historyList = document.getElementById("historyList");
       const historySection = document.getElementById("historySection");
       const history = [];
 
-      async function download() {
-        const url = twitchUrlInput.value.trim();
+      async function downloadVideo() {
+        const url = input.value.trim();
         if (!url) {
-          statusText.textContent = "Please enter a Twitch video URL.";
+          statusText.textContent = "Please enter a Twitch video or clip URL.";
+          statusText.style.color = "red";
           return;
         }
 
         statusText.textContent = "Processing...";
-        statusText.style.color = "#d1d5db";
+        statusText.style.color = "#ccc";
         progressBar.style.width = "20%";
 
         try {
@@ -148,13 +140,14 @@
           if (!res.ok) {
             const error = await res.json();
             statusText.textContent = error.error || "Failed to download.";
+            statusText.style.color = "red";
             progressBar.style.width = "0%";
             return;
           }
 
           const blob = await res.blob();
           const disposition = res.headers.get("Content-Disposition") || "";
-          let filename = "download";
+          let filename = "twitch_video.mp4";
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
@@ -171,7 +164,7 @@
 
           progressBar.style.width = "100%";
           statusText.textContent = "Downloaded.";
-          statusText.style.color = "#34d399";
+          statusText.style.color = "#3ba55c";
 
           history.push({ url, filename });
           updateHistory();
@@ -185,16 +178,16 @@
       function updateHistory() {
         historySection.style.display = "block";
         historyList.innerHTML = "";
-        history.forEach(({ url, filename }) => {
+        history.forEach(({ filename }) => {
           const li = document.createElement("li");
-          li.textContent = `${filename}`;
+          li.textContent = filename;
           historyList.appendChild(li);
         });
       }
 
       document
         .getElementById("downloadBtn")
-        .addEventListener("click", download);
+        .addEventListener("click", downloadVideo);
     </script>
   </body>
 </html>
