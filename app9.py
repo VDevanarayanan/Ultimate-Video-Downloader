@@ -20,11 +20,13 @@ def download_youtube():
             return jsonify({"error": "Missing URL"}), 400
 
         if not ("youtube.com" in url or "youtu.be" in url):
-            return jsonify({"error": "Invalid youtube URL"}), 400
+            return jsonify({"error": "Invalid YouTube URL"}), 400
 
-        filename = f"{uuid.uuid4()}.%(ext)s"
-        output_path = os.path.join(DOWNLOAD_DIR, filename)
+        # Output template with UUID
+        filename_template = f"{uuid.uuid4()}.%(ext)s"
+        output_path = os.path.join(DOWNLOAD_DIR, filename_template)
 
+        # yt_dlp options
         ydl_opts = {
             'outtmpl': output_path,
             'quiet': True,
@@ -36,10 +38,21 @@ def download_youtube():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             downloaded_file = ydl.prepare_filename(info)
-            if not downloaded_file.endswith(".mp4"):
-                downloaded_file = downloaded_file.rsplit('.', 1)[0] + ".mp4"
 
-        return send_file(downloaded_file, as_attachment=True)
+            # Ensure .mp4 extension if merged
+            if not downloaded_file.endswith(".mp4"):
+                downloaded_file = downloaded_file.rsplit(".", 1)[0] + ".mp4"
+
+        # Final file check
+        if not os.path.exists(downloaded_file):
+            return jsonify({"error": "Downloaded file not found"}), 500
+
+        return send_file(
+            downloaded_file,
+            as_attachment=True,
+            download_name=os.path.basename(downloaded_file),
+            mimetype='video/mp4'
+        )
 
     except Exception as e:
         traceback.print_exc()
@@ -52,4 +65,4 @@ def register_youtube_routes(app):
 
 if __name__ == '__main__':
     register_youtube_routes(app)
-    app.run()
+    app.run(debug=True, port=5000)
