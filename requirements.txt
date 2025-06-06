@@ -1,10 +1,23 @@
+# Core Flask Ecosystem (pinned for stability)
 blinker==1.9.0
-click==8.2.1
-Flask==3.1.1
-gunicorn==23.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.6
-MarkupSafe==3.0.2
-packaging==25.0
-Werkzeug==3.1.3
-yt-dlp==2025.5.22
+click==8.1.7  # Downgraded for Python 3.10 compatibility
+Flask==3.0.2  # Slightly older but more stable with pytube
+itsdangerous==2.1.2
+Jinja2==3.1.3
+Werkzeug==3.0.1
+
+# Server
+gunicorn==21.2.0  # Stable production server version
+
+# Video Processing
+yt-dlp==2025.5.22  # Latest stable
+ffmpeg-python==0.2.0  # Required for FFmpeg control
+pytube==12.1.0  # More stable with Flask 3.0.x
+
+# Utilities
+flask-cors==4.0.0
+mutagen==1.47.0  # For metadata handling
+requests==2.31.0
+
+# Dependency Management
+packaging==23.2  # Resolves MarkupSafe conflict

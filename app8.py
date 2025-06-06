@@ -19,7 +19,7 @@ def download_twitter():
         if not url:
             return jsonify({"error": "Missing URL"}), 400
 
-        if "twitter.com" not in url:
+        if "x.com" not in url:
             return jsonify({"error": "Invalid twitter URL"}), 400
 
         filename = f"{uuid.uuid4()}.%(ext)s"
