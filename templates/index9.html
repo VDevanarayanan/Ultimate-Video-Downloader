@@ -3,34 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <title>YouTube Downloader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+      :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-green: #10b981;
+        --accent-purple: #7c3aed;
+        --bg-color: #0a0f1c;
+        --card-bg: linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0.02)
+        );
+        --text: #ffffff;
+        --muted: #94a3b8;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        background-color: #111827;
-        color: white;
-        font-family: sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
-        margin: 0;
         padding: 20px;
       }
 
       .container {
-        background: #1f2937;
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         padding: 2rem;
-        border-radius: 1rem;
+        border-radius: 20px;
         max-width: 500px;
         width: 100%;
-        box-shadow: 0 0 10px #00000044;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
       }
 
       input[type="text"] {
         width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: none;
+        padding: 12px;
         margin-bottom: 1rem;
+        border-radius: 10px;
+        border: none;
+        font-size: 1rem;
+        background-color: #1f2937;
+        color: white;
       }
 
       .btn-group {
@@ -41,21 +79,22 @@
 
       button {
         flex: 1;
-        padding: 10px;
+        padding: 12px;
+        font-weight: 600;
         border: none;
-        border-radius: 8px;
-        font-weight: bold;
+        border-radius: 10px;
+        font-size: 1rem;
         cursor: pointer;
+        transition: background 0.3s ease;
+        color: white;
       }
 
       .btn-video {
-        background-color: #7c3aed;
-        color: white;
+        background-color: var(--accent-purple);
       }
 
       .btn-audio {
-        background-color: #10b981;
-        color: white;
+        background-color: var(--accent-green);
       }
 
       .btn-video:hover {
@@ -69,7 +108,7 @@
       .progress-bar {
         width: 100%;
         height: 8px;
-        background-color: #4b5563;
+        background-color: #374151;
         border-radius: 8px;
         overflow: hidden;
         margin-bottom: 1rem;
@@ -77,22 +116,51 @@
 
       .progress {
         height: 100%;
-        background-color: #3b82f6;
         width: 0%;
+        background-color: #3b82f6;
         transition: width 0.3s ease;
       }
 
       .status {
         text-align: center;
-        margin-bottom: 1rem;
         font-size: 0.9rem;
-        color: #d1d5db;
+        color: var(--muted);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 1.5rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        input[type="text"] {
+          font-size: 0.95rem;
+        }
+
+        button {
+          font-size: 0.95rem;
+          padding: 10px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 style="text-align: center; color: #a78bfa">YouTube Downloader</h1>
+      <h1>YouTube Downloader</h1>
       <input type="text" id="urlInput" placeholder="Enter YouTube URL" />
       <div class="btn-group">
         <button class="btn-video" onclick="download('video')">
@@ -117,10 +185,12 @@
         const url = urlInput.value.trim();
         if (!url) {
           statusText.textContent = "Please enter a YouTube URL.";
+          statusText.style.color = "#d1d5db";
           return;
         }
 
         statusText.textContent = "Processing...";
+        statusText.style.color = "#d1d5db";
         progressBar.style.width = "20%";
 
         try {
@@ -132,21 +202,20 @@
 
           progressBar.style.width = "60%";
 
-          // Check for non-successful response
           if (!res.ok) {
             let message = "Download failed.";
             try {
               const err = await res.json();
               message = err.error || message;
-            } catch (jsonErr) {
+            } catch {
               message = "Server returned an unexpected error.";
             }
             statusText.textContent = "Error: " + message;
+            statusText.style.color = "red";
             progressBar.style.width = "0%";
             return;
           }
 
-          // File download
           const blob = await res.blob();
           const disposition = res.headers.get("Content-Disposition") || "";
           let filename = "download";
@@ -167,6 +236,7 @@
 
           progressBar.style.width = "100%";
           statusText.textContent = "Download complete!";
+          statusText.style.color = "#34d399";
         } catch (e) {
           statusText.textContent = "Error: " + e.message;
           statusText.style.color = "red";

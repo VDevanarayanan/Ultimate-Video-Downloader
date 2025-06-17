@@ -3,72 +3,114 @@
   <head>
     <meta charset="UTF-8" />
     <title>Dailymotion Video Downloader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+      :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --card-gradient: linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.05),
+          rgba(255, 255, 255, 0.02)
+        );
+        --text-color: #ffffff;
+        --muted: #a0aec0;
+        --background: #0a0f1c;
+        --surface: #1a202c;
+        --highlight: #facc15;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
-        background-color: #111827;
-        color: white;
-        font-family: sans-serif;
+        background: var(--background);
+        color: var(--text-color);
+        font-family: "Inter", sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        margin: 0;
         padding: 20px;
       }
 
       .container {
-        background: #1f2937;
+        background: var(--card-gradient);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        box-shadow: var(--shadow);
+        border-radius: 20px;
         padding: 2rem;
-        border-radius: 1rem;
-        max-width: 500px;
+        max-width: 480px;
         width: 100%;
-        box-shadow: 0 0 10px #00000044;
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
       }
 
       input[type="text"] {
         width: 100%;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 12px;
         border: none;
+        border-radius: 10px;
+        background: var(--surface);
+        color: white;
         margin-bottom: 1rem;
+        font-size: 1rem;
       }
 
       button {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
+        font-weight: 600;
+        background: var(--highlight);
         border: none;
-        border-radius: 8px;
-        font-weight: bold;
+        border-radius: 10px;
         cursor: pointer;
-        background-color: #ffcc00; /* Dailymotion yellow */
-        color: black;
+        transition: background 0.3s ease;
+        font-size: 1rem;
+        color: #000;
       }
 
       button:hover {
-        background-color: #fbbf24;
+        background: #fbbf24;
       }
 
       .progress-bar {
         width: 100%;
         height: 8px;
-        background-color: #4b5563;
+        background-color: #2d3748;
         border-radius: 8px;
         overflow: hidden;
-        margin-bottom: 1rem;
+        margin: 1rem 0;
       }
 
       .progress {
         height: 100%;
-        background-color: #facc15;
+        background-color: var(--highlight);
         width: 0%;
         transition: width 0.3s ease;
       }
 
       .status {
         text-align: center;
-        margin-bottom: 1rem;
         font-size: 0.9rem;
-        color: #d1d5db;
+        color: var(--muted);
+        margin-bottom: 1rem;
       }
 
       .history {
@@ -77,7 +119,7 @@
 
       .history h2 {
         font-size: 1rem;
-        color: #facc15;
+        color: var(--highlight);
         margin-bottom: 0.5rem;
         text-align: center;
       }
@@ -88,27 +130,41 @@
       }
 
       .history li {
-        background: #374151;
-        padding: 8px;
-        border-radius: 6px;
-        margin-bottom: 5px;
+        background: #2d3748;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 6px;
         font-size: 0.9rem;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 style="text-align: center; color: #facc15">Dailymotion Downloader</h1>
+      <h1>Dailymotion Downloader</h1>
       <input
         type="text"
         id="videoUrl"
         placeholder="Enter Dailymotion video URL"
       />
       <button id="downloadBtn">Download Video</button>
+
       <div class="progress-bar">
         <div class="progress" id="progressBar"></div>
       </div>
+
       <p class="status" id="statusText"></p>
+
       <div class="history" id="historySection" style="display: none">
         <h2>Download History</h2>
         <ul id="historyList"></ul>
@@ -165,7 +221,7 @@
           if (disposition.includes("filename=")) {
             filename = disposition
               .split("filename=")[1]
-              .replace(/\"/g, "")
+              .replace(/"/g, "")
               .trim();
           }
 
