@@ -5,35 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ultimate Video Downloader</title>
     <style>
+      html,
       body {
+        margin: 0;
+        padding: 0;
         background-color: #0f172a;
         color: white;
         font-family: sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
+        height: 100%;
       }
 
-      h1 {
-        margin-top: 60px;
-        font-size: 2.5rem;
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background-color: #1e293b;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 2.2rem;
         color: #a78bfa;
       }
 
-      .grid {
+      .grid-container {
+        flex: 1;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 30px;
         padding: 40px;
-        max-width: 900px;
-        width: 100%;
+        box-sizing: border-box;
       }
 
       .card {
         background-color: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 20px;
         border-radius: 12px;
         text-align: center;
@@ -50,48 +64,49 @@
         color: #93c5fd;
         text-decoration: none;
         font-size: 1.2rem;
-        display: block;
+        font-weight: bold;
       }
 
       footer {
-        margin-top: auto;
         padding: 20px;
         font-size: 0.85rem;
         color: #94a3b8;
+        text-align: center;
+        background-color: #0f172a;
+      }
+
+      @media (max-width: 900px) {
+        .grid-container {
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(5, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .grid-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: repeat(9, 1fr);
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Ultimate Video Downloader</h1>
-    <div class="grid">
-      <div class="card">
-        <a href="/youtube">YouTube Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/twitter">Twitter (X) Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/dailymotion">Dailymotion Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/twitch">Twitch Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/reddit">Reddit Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/instagram">Instagram Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/tiktok">TikTok Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/facebook">Facebook Downloader</a>
-      </div>
-      <div class="card">
-        <a href="/pinterest">Pinterest Downloader</a>
-      </div>
+    <header>
+      <h1>Ultimate Video Downloader</h1>
+    </header>
+
+    <div class="grid-container">
+      <div class="card"><a href="/youtube">YouTube Downloader</a></div>
+      <div class="card"><a href="/twitter">Twitter (X) Downloader</a></div>
+      <div class="card"><a href="/dailymotion">Dailymotion Downloader</a></div>
+      <div class="card"><a href="/twitch">Twitch Downloader</a></div>
+      <div class="card"><a href="/reddit">Reddit Downloader</a></div>
+      <div class="card"><a href="/instagram">Instagram Downloader</a></div>
+      <div class="card"><a href="/tiktok">TikTok Downloader</a></div>
+      <div class="card"><a href="/facebook">Facebook Downloader</a></div>
+      <div class="card"><a href="/pinterest">Pinterest Downloader</a></div>
     </div>
-    <footer>© 2025 Ultimate Downloader — Built for convenience.</footer>
+
+    <footer>© 2025 Ultimate Video Downloader — Built for convenience.</footer>
   </body>
 </html>
